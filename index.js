@@ -214,7 +214,15 @@ const treeData = {
                               nameRu: "Болат",
                               generation: 8,
                               children: [
-                                { id: "murat", nameKz: "Мұрат", nameRu: "Мурат", generation: 9 },
+                                { 
+                                  id: "murat", 
+                                  nameKz: "Мұрат", 
+                                  nameRu: "Мурат", 
+                                  generation: 9,
+                                  children: [
+                                    { id: "jaslan", nameKz: "Жаслан", nameRu: "Жаслан", generation: 10 }
+                                  ]
+                                },
                                 {
                                   id: "zhanat_bolat",
                                   nameKz: "Жанат",
@@ -224,8 +232,21 @@ const treeData = {
                                     { id: "dias", nameKz: "Диас", nameRu: "Диас", generation: 10 }
                                   ]
                                 },
-                                { id: "zhumat", nameKz: "Жұмат", nameRu: "Жумат", generation: 9 },
-                                { id: "askhat", nameKz: "Асхат", nameRu: "Асхат", generation: 9 }
+                                { 
+                                  id: "zhumat", 
+                                  nameKz: "Жұмат", 
+                                  nameRu: "Жумат", 
+                                  generation: 9
+                                },
+                                { 
+                                  id: "askhat",
+                                  nameKz: "Асхат", 
+                                  nameRu: "Асхат", 
+                                  generation: 9,
+                                  children: [
+                                    { id: "erlan", nameKz: "Ерлан", nameRu: "Ерлан", generation: 10 }
+                                  ] 
+                                }
                               ]
                             },
                             { id: "dulat", nameKz: "Дулат", nameRu: "Дулат", generation: 8 }
