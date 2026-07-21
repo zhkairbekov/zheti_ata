@@ -220,7 +220,7 @@ const treeData = {
 };
 
 // --- 2. Application State ---
-let currentLang = "kz"; // 'kz' or 'ru'
+let currentLang = "ru"; // 'kz' or 'ru'
 let currentLayout = "vertical"; // 'horizontal' or 'vertical'
 let selectedNodeId = null;
 let zoomBehavior = null;
