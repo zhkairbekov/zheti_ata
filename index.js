@@ -288,6 +288,7 @@ const treeData = {
 // --- 2. Application State ---
 let currentLang = "ru"; // 'kz' or 'ru'
 let currentLayout = "vertical"; // 'horizontal' or 'vertical'
+let navMode = "mouse"; // 'mouse' or 'trackpad'
 let selectedNodeId = null;
 let zoomBehavior = null;
 let svg = null;
@@ -315,11 +316,42 @@ function initTree() {
 
   svg.call(zoomBehavior);
 
+  // Setup wheel event interceptor for custom touchpad/mouse behavior
+  svg.on("wheel", (event) => {
+    if (navMode === "trackpad") {
+      event.preventDefault();
+      
+      const currentTransform = d3.zoomTransform(svg.node());
+      
+      if (event.ctrlKey) {
+        // Zoom (pinch-to-zoom on trackpad)
+        const factor = Math.exp(-event.deltaY * 0.01);
+        const newScale = Math.max(0.1, Math.min(3, currentTransform.k * factor));
+        const mouse = d3.pointer(event, svg.node());
+        const targetTransform = d3.zoomIdentity
+          .translate(mouse[0] - (mouse[0] - currentTransform.x) * (newScale / currentTransform.k),
+                     mouse[1] - (mouse[1] - currentTransform.y) * (newScale / currentTransform.k))
+          .scale(newScale);
+          
+        svg.call(zoomBehavior.transform, targetTransform);
+      } else {
+        // Pan (two-finger scroll on trackpad)
+        const dx = -event.deltaX;
+        const dy = -event.deltaY;
+        const targetTransform = currentTransform.translate(dx / currentTransform.k, dy / currentTransform.k);
+        svg.call(zoomBehavior.transform, targetTransform);
+      }
+    }
+  }, { passive: false });
+
   // Initial draw
   drawTree();
   
   // Center tree on load
-  setTimeout(resetView, 100);
+  setTimeout(() => {
+    resetView();
+    updateNavMode();
+  }, 100);
 }
 
 function drawTree() {
@@ -867,6 +899,9 @@ function setLayout(layout) {
   if (btnPng) btnPng.title = t.exportPNG;
   const btnSvg = document.getElementById("btn-export-svg");
   if (btnSvg) btnSvg.title = t.exportSVG;
+
+  // Sync navigation mode button tooltip language
+  updateNavMode();
 }
 
 // Close the banner at top
@@ -1023,3 +1058,35 @@ window.closeBanner = closeBanner;
 window.closeDetailDrawer = closeDetailDrawer;
 window.zoomBy = zoomBy;
 window.resetView = resetView;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;
+window.toggleNavMode = toggleNavMode;
+
+// Navigation mode managers
+function updateNavMode() {
+  const btn = document.getElementById("nav-mode-toggle");
+  if (!btn) return;
+  
+  if (navMode === "trackpad") {
+    btn.innerHTML = "💻";
+    const titleText = currentLang === "kz" ? "Режим: Тачпад (Жылжыту үшін екі саусақпен сүйреңіз)" : "Режим: Тачпад (Свайп двумя пальцами для перемещения)";
+    btn.title = titleText;
+    btn.style.background = "var(--bg-tertiary)";
+    
+    // Disable default D3 wheel zoom
+    svg.on("wheel.zoom", null);
+  } else {
+    btn.innerHTML = "🖱️";
+    const titleText = currentLang === "kz" ? "Режим: Тінтуір (Масштабтау үшін доңғалақты айналдырыңыз)" : "Режим: Мышь (Колесико для масштабирования)";
+    btn.title = titleText;
+    btn.style.background = "";
+    
+    // Re-enable D3 zoom behavior
+    svg.call(zoomBehavior);
+  }
+}
+
+function toggleNavMode() {
+  navMode = navMode === "mouse" ? "trackpad" : "mouse";
+  updateNavMode();
+}
