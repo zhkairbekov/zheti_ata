@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Шежіре (Жеті Ата) - Семейное древо</title>
+  
+  <!-- Google Fonts - Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- D3.js Library from CDN -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  
+  <!-- Background Grid Pattern -->
+  <div class="bg-grid"></div>
+
+  <div class="app-container">
+    
+    <!-- Floating Glass Header -->
+    <header class="glass-panel">
+      <div class="brand">
+        <div class="brand-icon">ЖА</div>
+        <div class="brand-text">
+          <h1 id="app-title">Қайырбек ұрпақтары шежіресі</h1>
+          <p id="app-subtitle">Соқыр-Керей (Күрсәрі)</p>
+        </div>
+      </div>
+      
+      <!-- Hamburger Menu Button for Mobile -->
+      <button id="menu-toggle" class="btn btn-icon mobile-only-btn" onclick="toggleMobileMenu()" title="Menu">
+        <span>☰</span>
+      </button>
+      
+      <div class="top-controls">
+        <!-- Search Input with Auto-complete -->
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Іздеу...">
+          <div id="suggestions" class="suggestions-dropdown glass-panel"></div>
+        </div>
+
+        <!-- Spelling Switcher -->
+        <div class="toggle-container">
+          <div id="toggle-kz" class="toggle-option active" onclick="setSpelling('kz')">ҚАЗ</div>
+          <div id="toggle-ru" class="toggle-option" onclick="setSpelling('ru')">РУС</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Canvas Area for SVG Drawing -->
+    <main class="canvas-container">
+      <svg id="family-tree" class="family-tree-svg">
+        <defs>
+          <!-- Soft Drop Shadow Filter for nodes -->
+          <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.25"/>
+          </filter>
+          
+          <!-- Neon Glow Filter for Highlighted Ancestor Path -->
+          <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feComponentTransfer in="blur" result="glow1">
+              <feFuncA type="linear" slope="0.6"/>
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode in="glow1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <g id="g-container"></g>
+      </svg>
+    </main>
+
+    <!-- Floating Zoom controls -->
+    <div class="floating-controls">
+      <div class="control-group glass-panel">
+        <button class="btn btn-icon" onclick="zoomBy(1.2)" title="Zoom In">+</button>
+        <button class="btn btn-icon" onclick="zoomBy(0.8)" title="Zoom Out">−</button>
+        <button class="btn btn-icon" onclick="resetView()" title="Reset View">⌂</button>
+      </div>
+      
+      <div class="control-group glass-panel">
+        <button id="layout-vertical" class="btn btn-icon" onclick="setLayout('vertical')" title="Vertical Tree" style="background: var(--bg-tertiary);">⬇️</button>
+        <button id="layout-horizontal" class="btn btn-icon" onclick="setLayout('horizontal')" title="Horizontal Tree">➡️</button>
+      </div>
+    </div>
+
+    <!-- Legend Panel -->
+    <div class="legend-panel glass-panel">
+      <div class="legend-title" id="legend-title">Белгілер</div>
+      <div class="legend-item">
+        <div class="legend-color ancestor"></div>
+        <span id="legend-ancestor-label">Ортақ Ата</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color normal"></div>
+        <span id="legend-node-label">Ұрпақ</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color selected"></div>
+        <span id="legend-sel-label">Таңдалған мүше</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color path"></div>
+        <span id="legend-path-label">Шежіре жолы</span>
+      </div>
+    </div>
+
+    <!-- Detail Drawer Panel (Slides in from right) -->
+    <div id="detail-drawer" class="detail-drawer glass-panel">
+      <div class="drawer-header">
+        <div>
+          <h2 id="drawer-name" class="drawer-name-title">---</h2>
+          <span id="drawer-gen" class="drawer-gen-tag">---</span>
+        </div>
+        <button class="drawer-close" onclick="closeDetailDrawer()" id="drawer-close-btn" title="Жабу">✕</button>
+      </div>
+
+      <!-- Row for direct father -->
+      <div class="drawer-section">
+        <h3 class="drawer-section-title" id="drawer-parent-title">Әкесі</h3>
+        <div id="drawer-parent-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Lineage line from selected node up to ancestor -->
+      <div class="drawer-section">
+        <h3 class="drawer-section-title" id="drawer-path-title">Шежіре (Жеті Ата)</h3>
+        <div id="drawer-path" style="font-size: 0.85rem; line-height: 1.6; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border);">
+          <!-- Lineage path populated by JS -->
+        </div>
+      </div>
+
+      <!-- List of Children -->
+      <div class="drawer-section">
+        <h3 class="drawer-section-title" id="drawer-children-title">Балалары</h3>
+        <div id="drawer-children-list" class="drawer-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- List of Siblings -->
+      <div class="drawer-section">
+        <h3 class="drawer-section-title" id="drawer-siblings-title">Ағайындылар</h3>
+        <div id="drawer-siblings-list" class="drawer-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="index.js"></script>
+</body>
+</html>
