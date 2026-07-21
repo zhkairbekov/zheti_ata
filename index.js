@@ -200,7 +200,18 @@ const treeData = {
                           generation: 7,
                           children: [
                             { id: "konysbay", nameKz: "Қонысбай", nameRu: "Конысбай", generation: 8 },
-                            { id: "bolat", nameKz: "Болат", nameRu: "Болат", generation: 8 },
+                            {
+                              id: "bolat",
+                              nameKz: "Болат",
+                              nameRu: "Болат",
+                              generation: 8,
+                              children: [
+                                { id: "murat", nameKz: "Мұрат", nameRu: "Мурат", generation: 9 },
+                                { id: "zhanat_bolat", nameKz: "Жанат", nameRu: "Жанат", generation: 9 },
+                                { id: "zhumat", nameKz: "Жұмат", nameRu: "Жумат", generation: 9 },
+                                { id: "askhat", nameKz: "Асхат", nameRu: "Асхат", generation: 9 }
+                              ]
+                            },
                             { id: "dulat", nameKz: "Дулат", nameRu: "Дулат", generation: 8 }
                           ]
                         },
