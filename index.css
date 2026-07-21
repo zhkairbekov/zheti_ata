@@ -713,4 +713,9 @@ svg.family-tree-svg defs filter#glow {
   .drawer-open .floating-controls {
     bottom: calc(50vh + 16px);
   }
+
+  /* Hide navigation mode panel on mobile screens */
+  #nav-mode-panel {
+    display: none !important;
+  }
 }
