@@ -344,7 +344,10 @@ function initTree() {
         zoomBehavior.scaleBy(svg, factor, mouse);
       } else if (event.shiftKey) {
         // Shift + Scroll -> Pan Horizontally
-        zoomBehavior.translateBy(svg, -event.deltaY, 0);
+        // Browsers on macOS (Safari/Chrome) automatically map Shift+scroll to deltaX.
+        // On other setups/OS, it might remain in deltaY. We handle both cases.
+        const dx = event.deltaX !== 0 ? event.deltaX : event.deltaY;
+        zoomBehavior.translateBy(svg, -dx, 0);
       } else {
         // Plain Scroll -> Pan Vertically
         zoomBehavior.translateBy(svg, 0, -event.deltaY);
