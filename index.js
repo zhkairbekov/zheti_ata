@@ -316,12 +316,15 @@ function initTree() {
 
   svg.call(zoomBehavior);
 
-  // Setup wheel event interceptor for custom touchpad/mouse behavior via native listener
+  // Disable default D3 wheel zoom permanently to prevent conflicts with passive listeners
+  svg.on("wheel.zoom", null);
+
+  // Setup unified wheel event listener for custom touchpad/mouse behavior via native listener
   const svgEl = svg.node();
   svgEl.addEventListener("wheel", (event) => {
+    event.preventDefault(); // Always prevent default scroll behavior to avoid double page scroll
+    
     if (navMode === "trackpad") {
-      event.preventDefault();
-      
       if (event.ctrlKey) {
         // Zoom (pinch-to-zoom on trackpad or Ctrl+scroll)
         const factor = Math.exp(-event.deltaY * 0.01);
@@ -329,9 +332,14 @@ function initTree() {
         zoomBehavior.scaleBy(svg, factor, mouse);
       } else {
         // Pan (two-finger scroll on trackpad)
-        // translateBy automatically pans the selection by screen delta pixels
         zoomBehavior.translateBy(svg, -event.deltaX, -event.deltaY);
       }
+    } else {
+      // Mouse mode: Zoom on standard scroll wheel
+      // DeltaY is usually much larger on physical mice, so we use a smaller multiplier
+      const factor = Math.exp(-event.deltaY * 0.0015);
+      const mouse = d3.pointer(event, svgEl);
+      zoomBehavior.scaleBy(svg, factor, mouse);
     }
   }, { passive: false });
 
@@ -1063,17 +1071,11 @@ function updateNavMode() {
     const titleText = currentLang === "kz" ? "Режим: Тачпад (Жылжыту үшін екі саусақпен сүйреңіз)" : "Режим: Тачпад (Свайп двумя пальцами для перемещения)";
     btn.title = titleText;
     btn.style.background = "var(--bg-tertiary)";
-    
-    // Disable default D3 wheel zoom
-    svg.on("wheel.zoom", null);
   } else {
     btn.innerHTML = "🖱️";
     const titleText = currentLang === "kz" ? "Режим: Тінтуір (Масштабтау үшін доңғалақты айналдырыңыз)" : "Режим: Мышь (Колесико для масштабирования)";
     btn.title = titleText;
     btn.style.background = "";
-    
-    // Re-enable D3 zoom behavior
-    svg.call(zoomBehavior);
   }
 }
 
