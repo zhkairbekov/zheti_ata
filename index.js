@@ -325,21 +325,30 @@ function initTree() {
     event.preventDefault(); // Always prevent default scroll behavior to avoid double page scroll
     
     if (navMode === "trackpad") {
-      if (event.ctrlKey) {
-        // Zoom (pinch-to-zoom on trackpad or Ctrl+scroll)
+      // Trackpad Mode: pinch to zoom, two-finger swipe to pan in any direction
+      if (event.ctrlKey || event.metaKey) {
         const factor = Math.exp(-event.deltaY * 0.01);
         const mouse = d3.pointer(event, svgEl);
         zoomBehavior.scaleBy(svg, factor, mouse);
       } else {
-        // Pan (two-finger scroll on trackpad)
         zoomBehavior.translateBy(svg, -event.deltaX, -event.deltaY);
       }
     } else {
-      // Mouse mode: Zoom on standard scroll wheel
-      // DeltaY is usually much larger on physical mice, so we use a smaller multiplier
-      const factor = Math.exp(-event.deltaY * 0.0015);
-      const mouse = d3.pointer(event, svgEl);
-      zoomBehavior.scaleBy(svg, factor, mouse);
+      // Mouse Mode (Figma-like navigation):
+      const isZoom = event.ctrlKey || event.metaKey;
+      
+      if (isZoom) {
+        // Ctrl + Scroll (or Cmd + Scroll on macOS) -> Zoom
+        const factor = Math.exp(-event.deltaY * 0.0015);
+        const mouse = d3.pointer(event, svgEl);
+        zoomBehavior.scaleBy(svg, factor, mouse);
+      } else if (event.shiftKey) {
+        // Shift + Scroll -> Pan Horizontally
+        zoomBehavior.translateBy(svg, -event.deltaY, 0);
+      } else {
+        // Plain Scroll -> Pan Vertically
+        zoomBehavior.translateBy(svg, 0, -event.deltaY);
+      }
     }
   }, { passive: false });
 
