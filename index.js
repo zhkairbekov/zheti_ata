@@ -160,7 +160,15 @@ const treeData = {
                           generation: 7,
                           children: [
                             { id: "baglan", nameKz: "Бағлан", nameRu: "Баглан", generation: 8 },
-                            { id: "bakytzhan", nameKz: "Бақытжан", nameRu: "Бакытжан", generation: 8 },
+                            {
+                              id: "bakytzhan",
+                              nameKz: "Бақытжан",
+                              nameRu: "Бакытжан",
+                              generation: 8,
+                              children: [
+                                { id: "zhaksylyk_bakytzhan", nameKz: "Жақсылық", nameRu: "Жаксылык", generation: 9 }
+                              ]
+                            },
                             {
                               id: "erzhan",
                               nameKz: "Ержан",
