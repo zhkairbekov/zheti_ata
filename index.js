@@ -316,15 +316,16 @@ function initTree() {
 
   svg.call(zoomBehavior);
 
-  // Setup wheel event interceptor for custom touchpad/mouse behavior
-  svg.on("wheel", (event) => {
+  // Setup wheel event interceptor for custom touchpad/mouse behavior via native listener
+  const svgEl = svg.node();
+  svgEl.addEventListener("wheel", (event) => {
     if (navMode === "trackpad") {
       event.preventDefault();
       
       if (event.ctrlKey) {
         // Zoom (pinch-to-zoom on trackpad or Ctrl+scroll)
         const factor = Math.exp(-event.deltaY * 0.01);
-        const mouse = d3.pointer(event, svg.node());
+        const mouse = d3.pointer(event, svgEl);
         zoomBehavior.scaleBy(svg, factor, mouse);
       } else {
         // Pan (two-finger scroll on trackpad)
@@ -333,6 +334,10 @@ function initTree() {
       }
     }
   }, { passive: false });
+
+  // Prevent native macOS Safari page-zoom gestures on trackpad
+  svgEl.addEventListener("gesturestart", (event) => event.preventDefault(), { passive: false });
+  svgEl.addEventListener("gesturechange", (event) => event.preventDefault(), { passive: false });
 
   // Initial draw
   drawTree();
