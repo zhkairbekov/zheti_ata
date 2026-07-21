@@ -335,10 +335,6 @@ function initTree() {
     }
   }, { passive: false });
 
-  // Prevent native macOS Safari page-zoom gestures on trackpad
-  svgEl.addEventListener("gesturestart", (event) => event.preventDefault(), { passive: false });
-  svgEl.addEventListener("gesturechange", (event) => event.preventDefault(), { passive: false });
-
   // Initial draw
   drawTree();
   
