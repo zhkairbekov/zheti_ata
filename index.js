@@ -69,7 +69,15 @@ const treeData = {
                               nameRu: "Ермек",
                               generation: 8,
                               children: [
-                                { id: "ruslan", nameKz: "Руслан", nameRu: "Руслан", generation: 9 }
+                                { 
+                                  id: "ruslan", 
+                                  nameKz: "Руслан", 
+                                  nameRu: "Руслан", 
+                                  generation: 9,
+                                  children: [
+                                    { id: "tigran", nameKz: "Тигран", nameRu: "Тигран", generation: 10}
+                                  ]
+                                 }
                               ]
                             },
                             {
