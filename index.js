@@ -39,6 +39,12 @@ const treeData = {
                       id: "satybaldy",
                       nameKz: "Сатыбалды",
                       nameRu: "Сатыбалды",
+                      generation: 6
+                    },
+                    {
+                      id: "mukhamedyar",
+                      nameKz: "Мұхамедяр",
+                      nameRu: "Мухамедяр",
                       generation: 6,
                       children: [
                         {
@@ -78,12 +84,6 @@ const treeData = {
                           ]
                         }
                       ]
-                    },
-                    {
-                      id: "mukhamedyar",
-                      nameKz: "Мұхамедяр",
-                      nameRu: "Мухамедяр",
-                      generation: 6
                     }
                   ]
                 },
