@@ -321,25 +321,15 @@ function initTree() {
     if (navMode === "trackpad") {
       event.preventDefault();
       
-      const currentTransform = d3.zoomTransform(svg.node());
-      
       if (event.ctrlKey) {
-        // Zoom (pinch-to-zoom on trackpad)
+        // Zoom (pinch-to-zoom on trackpad or Ctrl+scroll)
         const factor = Math.exp(-event.deltaY * 0.01);
-        const newScale = Math.max(0.1, Math.min(3, currentTransform.k * factor));
         const mouse = d3.pointer(event, svg.node());
-        const targetTransform = d3.zoomIdentity
-          .translate(mouse[0] - (mouse[0] - currentTransform.x) * (newScale / currentTransform.k),
-                     mouse[1] - (mouse[1] - currentTransform.y) * (newScale / currentTransform.k))
-          .scale(newScale);
-          
-        svg.call(zoomBehavior.transform, targetTransform);
+        zoomBehavior.scaleBy(svg, factor, mouse);
       } else {
         // Pan (two-finger scroll on trackpad)
-        const dx = -event.deltaX;
-        const dy = -event.deltaY;
-        const targetTransform = currentTransform.translate(dx / currentTransform.k, dy / currentTransform.k);
-        svg.call(zoomBehavior.transform, targetTransform);
+        // translateBy automatically pans the selection by screen delta pixels
+        zoomBehavior.translateBy(svg, -event.deltaX, -event.deltaY);
       }
     }
   }, { passive: false });
